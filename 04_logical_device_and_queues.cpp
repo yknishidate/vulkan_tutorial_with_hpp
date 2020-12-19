@@ -122,18 +122,12 @@ private:
                 vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
 
             vk::StructureChain<vk::InstanceCreateInfo, vk::DebugUtilsMessengerCreateInfoEXT> createInfo(
-                { {}, &appInfo,
-                    static_cast<uint32_t>(validationLayers.size()), validationLayers.data(),
-                    static_cast<uint32_t>(extensions.size()), extensions.data() },
+                { {}, &appInfo, validationLayers, extensions },
                 { {}, severityFlags, messageTypeFlags, &debugUtilsMessengerCallback });
             instance = vk::createInstanceUnique(createInfo.get<vk::InstanceCreateInfo>());
         } else {
             // in non-debug mode
-            vk::InstanceCreateInfo createInfo(
-                vk::InstanceCreateFlags(),
-                &appInfo,
-                0, nullptr,
-                static_cast<uint32_t>(extensions.size()), extensions.data());
+            vk::InstanceCreateInfo createInfo({}, &appInfo, {}, extensions);
             instance = vk::createInstanceUnique(createInfo, nullptr);
         }
 

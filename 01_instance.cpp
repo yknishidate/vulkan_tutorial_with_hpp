@@ -56,22 +56,18 @@ private:
 
     void createInstance()
     {
-        vk::ApplicationInfo appInfo{
+        vk::ApplicationInfo appInfo(
             "Hello Triangle",
             VK_MAKE_VERSION(1, 0, 0),
             "No Engine",
             VK_MAKE_VERSION(1, 0, 0),
-            VK_API_VERSION_1_2 };
+            VK_API_VERSION_1_2);
 
         uint32_t glfwExtensionCount = 0;
         const char** glfwExtensions;
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-        vk::InstanceCreateInfo createInfo(
-            vk::InstanceCreateFlags(),
-            &appInfo,
-            0, nullptr,
-            glfwExtensionCount, glfwExtensions);
+        vk::InstanceCreateInfo createInfo({}, &appInfo, 0, nullptr, glfwExtensionCount, glfwExtensions);
 
         instance = vk::createInstanceUnique(createInfo, nullptr);
 
