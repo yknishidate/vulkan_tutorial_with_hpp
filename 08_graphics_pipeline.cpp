@@ -255,7 +255,7 @@ private:
         QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
         if (indices.graphicsFamily != indices.presentFamily) {
             createInfo.setImageSharingMode(vk::SharingMode::eConcurrent);
-            createInfo.setQueueFamilyIndices(std::vector{ indices.graphicsFamily.value(), indices.presentFamily.value() });
+            createInfo.setQueueFamilyIndices(std::array{ indices.graphicsFamily.value(), indices.presentFamily.value() });
         }
 
         swapChain = device->createSwapchainKHRUnique(createInfo);

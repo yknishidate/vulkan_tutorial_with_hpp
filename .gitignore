@@ -3,3 +3,5 @@ x64/
 Debug/
 Release/
 .editorconfig
+compile.bat
+.vscode/
