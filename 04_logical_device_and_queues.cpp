@@ -55,7 +55,9 @@ private:
     vk::UniqueDebugUtilsMessengerEXT debugUtilsMessenger;
 
     vk::PhysicalDevice physicalDevice;
-    vk::Device device;
+    vk::UniqueDevice device;
+
+    vk::Queue graphicsQueue;
 
     void initWindow()
     {
@@ -176,7 +178,19 @@ private:
     {
         QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
-        vk::DeviceQueueCreateInfo queueCreateInfo({}, indices.graphicsFamily.value(), 1);
+        float queuePriority = 1.0f;
+        vk::DeviceQueueCreateInfo queueCreateInfo({}, indices.graphicsFamily.value(), 1, &queuePriority);
+
+        vk::PhysicalDeviceFeatures deviceFeatures{};
+
+        vk::DeviceCreateInfo createInfo({}, queueCreateInfo, {}, {}, &deviceFeatures);
+
+        if (enableValidationLayers) {
+            createInfo.setPEnabledLayerNames(validationLayers);
+        }
+
+        device = physicalDevice.createDeviceUnique(createInfo);
+        graphicsQueue = device->getQueue(indices.graphicsFamily.value(), 0);
     }
 
     bool isDeviceSuitable(vk::PhysicalDevice device)
