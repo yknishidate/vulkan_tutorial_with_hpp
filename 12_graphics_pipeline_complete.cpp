@@ -350,8 +350,12 @@ private:
             &viewportState, &rasterizer, &multisampling, {}, &colorBlending, {}, pipelineLayout.get(),
             renderPass.get(), 0, {}, {});
 
-        auto [result, graphicsPipeline] = device->createGraphicsPipelineUnique({}, pipelineInfo);
-
+        vk::ResultValue<vk::UniquePipeline> result = device->createGraphicsPipelineUnique({}, pipelineInfo);
+        if (result.result == vk::Result::eSuccess) {
+            graphicsPipeline = std::move(result.value);
+        } else {
+            throw std::runtime_error("failed to create a pipeline!");
+        }
     }
 
     vk::UniqueShaderModule createShaderModule(const std::vector<char>& code)
