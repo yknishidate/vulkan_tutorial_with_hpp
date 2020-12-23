@@ -323,7 +323,7 @@ private:
             vk::PipelineStageFlagBits::eColorAttachmentOutput, vk::PipelineStageFlagBits::eColorAttachmentOutput,
             {}, vk::AccessFlagBits::eColorAttachmentWrite);
 
-        vk::RenderPassCreateInfo renderPassInfo({}, std::array{ colorAttachment }, std::array{ subpass }, std::array{ dependency });
+        vk::RenderPassCreateInfo renderPassInfo({}, colorAttachment, subpass, dependency);
 
         renderPass = device->createRenderPassUnique(renderPassInfo);
     }
@@ -416,7 +416,7 @@ private:
 
             vk::ClearValue clearColor(std::array{ 0.0f, 0.0f, 0.0f, 1.0f });
             vk::RenderPassBeginInfo renderPassInfo(renderPass.get(), swapChainFramebuffers[i].get(),
-                { {0, 0}, swapChainExtent }, std::array{ clearColor });
+                { {0, 0}, swapChainExtent }, clearColor);
 
             commandBuffers[i]->beginRenderPass(renderPassInfo, vk::SubpassContents::eInline);
             commandBuffers[i]->bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline.get());
