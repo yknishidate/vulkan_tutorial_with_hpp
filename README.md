@@ -1,4 +1,4 @@
-# [WIP] vulkan_tutorial_hpp
+# vulkan_tutorial_hpp
 
 `vulkan.hpp` を利用して [Vulkan Tutorial](https://vulkan-tutorial.com/) を簡潔に書き直したプロジェクト
 
@@ -6,5 +6,5 @@
 
 ## Requirement
 
-- C++17
-- glfw3
+-   C++17
+-   glfw3
