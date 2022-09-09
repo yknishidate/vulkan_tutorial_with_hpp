@@ -6,3 +6,4 @@ Release/
 compile.bat
 .vscode/
 *.spv
+vulkan_tutorial_with_hpp

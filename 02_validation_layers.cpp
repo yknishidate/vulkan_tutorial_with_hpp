@@ -1,5 +1,4 @@
 
-// DispatchLoaderDynamicをデフォルトディスパッチャとして使うように設定
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 
 #include <vulkan/vulkan.hpp>
@@ -9,7 +8,6 @@
 #include <stdexcept>
 #include <cstdlib>
 
-// デフォルトディスパッチャのためのストレージを用意しておくマクロ
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 const uint32_t WIDTH = 800;
@@ -74,7 +72,6 @@ private:
 
     void createInstance()
     {
-        // インスタンスに依存しない関数ポインタを取得する
         // get the instance independent function pointers
         static vk::DynamicLoader dl;
         auto vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");

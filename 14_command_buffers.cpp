@@ -1,5 +1,4 @@
 
-// DispatchLoaderDynamicをデフォルトディスパッチャとして使うように設定
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 
 #include <vulkan/vulkan.hpp>
@@ -15,7 +14,6 @@
 #include <fstream>
 #include <array>
 
-// デフォルトディスパッチャのためのストレージを用意しておくマクロ
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 const uint32_t WIDTH = 800;
@@ -134,7 +132,6 @@ private:
 
     void createInstance()
     {
-        // インスタンスに依存しない関数ポインタを取得する
         // get the instance independent function pointers
         static vk::DynamicLoader dl;
         auto vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
@@ -195,13 +192,11 @@ private:
 
     void createSurface()
     {
-        // glfw は生の VkSurface や VkInstance で操作する必要がある
         VkSurfaceKHR _surface;
         if (glfwCreateWindowSurface(VkInstance(instance.get()), window, nullptr, &_surface) != VK_SUCCESS) {
             throw std::runtime_error("failed to create window surface!");
         }
-        vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(instance.get());
-        surface = vk::UniqueSurfaceKHR(vk::SurfaceKHR(_surface), _deleter);
+        surface = vk::UniqueSurfaceKHR(_surface, { instance.get() });
     }
 
     void pickPhysicalDevice()
@@ -215,7 +210,7 @@ private:
             }
         }
 
-        if (physicalDevice == VK_NULL_HANDLE) {
+        if (!physicalDevice) {
             throw std::runtime_error("failed to find a suitable GPU!");
         }
     }
@@ -269,7 +264,8 @@ private:
         QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
         if (indices.graphicsFamily != indices.presentFamily) {
             createInfo.setImageSharingMode(vk::SharingMode::eConcurrent);
-            createInfo.setQueueFamilyIndices(std::array{ indices.graphicsFamily.value(), indices.presentFamily.value() });
+            std::array familyIndices = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+            createInfo.setQueueFamilyIndices(familyIndices);
         }
 
         swapChain = device->createSwapchainKHRUnique(createInfo);
@@ -346,8 +342,6 @@ private:
 
         vk::PipelineColorBlendStateCreateInfo colorBlending({}, VK_FALSE, vk::LogicOp::eCopy, 1, &colorBlendAttachment);
 
-        vk::PipelineDynamicStateCreateInfo dynamicState({}, std::array{ vk::DynamicState::eViewport, vk::DynamicState::eLineWidth });
-
         vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
 
         pipelineLayout = device->createPipelineLayoutUnique(pipelineLayoutInfo);
@@ -370,7 +364,7 @@ private:
         swapChainFramebuffers.reserve(swapChainImageViews.size());
 
         for (auto const& view : swapChainImageViews) {
-            vk::FramebufferCreateInfo framebufferInfo({}, renderPass.get(), std::array{ view.get() },
+            vk::FramebufferCreateInfo framebufferInfo({}, renderPass.get(), view.get(),
                 swapChainExtent.width, swapChainExtent.height, 1);
             swapChainFramebuffers.push_back(device->createFramebufferUnique(framebufferInfo));
         }
@@ -450,7 +444,6 @@ private:
                 static_cast<uint32_t>(height)
             };
 
-            // std::clamp()を使って分かりやすくしている
             actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
             actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
@@ -565,7 +558,7 @@ private:
             throw std::runtime_error("failed to open file!");
         }
 
-        size_t fileSize = (size_t)file.tellg();
+        size_t fileSize = file.tellg();
         std::vector<char> buffer(fileSize);
 
         file.seekg(0);

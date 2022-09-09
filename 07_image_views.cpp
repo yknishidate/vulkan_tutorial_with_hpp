@@ -1,5 +1,4 @@
 
-// DispatchLoaderDynamicをデフォルトディスパッチャとして使うように設定
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 
 #include <vulkan/vulkan.hpp>
@@ -13,7 +12,6 @@
 #include <cstdint>
 #include <algorithm>
 
-// デフォルトディスパッチャのためのストレージを用意しておくマクロ
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 const uint32_t WIDTH = 800;
@@ -119,7 +117,6 @@ private:
 
     void createInstance()
     {
-        // インスタンスに依存しない関数ポインタを取得する
         // get the instance independent function pointers
         static vk::DynamicLoader dl;
         auto vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
@@ -180,13 +177,11 @@ private:
 
     void createSurface()
     {
-        // glfw は生の VkSurface や VkInstance で操作する必要がある
         VkSurfaceKHR _surface;
         if (glfwCreateWindowSurface(VkInstance(instance.get()), window, nullptr, &_surface) != VK_SUCCESS) {
             throw std::runtime_error("failed to create window surface!");
         }
-        vk::ObjectDestroy<vk::Instance, VULKAN_HPP_DEFAULT_DISPATCHER_TYPE> _deleter(instance.get());
-        surface = vk::UniqueSurfaceKHR(vk::SurfaceKHR(_surface), _deleter);
+        surface = vk::UniqueSurfaceKHR(_surface, { instance.get() });
     }
 
     void pickPhysicalDevice()
@@ -200,7 +195,7 @@ private:
             }
         }
 
-        if (physicalDevice == VK_NULL_HANDLE) {
+        if (!physicalDevice) {
             throw std::runtime_error("failed to find a suitable GPU!");
         }
     }
@@ -312,7 +307,6 @@ private:
                 static_cast<uint32_t>(height)
             };
 
-            // std::clamp()を使って分かりやすくしている
             actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
             actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
